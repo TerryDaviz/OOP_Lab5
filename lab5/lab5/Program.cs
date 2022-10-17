@@ -56,10 +56,12 @@ namespace lab4
             Console.WriteLine("clone.DoClone: " + clone.DoClone());
 
             Eagle eagle = new Eagle(3, 5, "abobus");
+
             Container container = new Container();
             container.AddToContainer(lion);
             container.AddToContainer(shark);
             container.ShowList();
+            container.RemoveFromContainer(4);
         }
 
         public struct Eagle
@@ -174,11 +176,35 @@ namespace lab4
 
         public class Container
         {
-            private List<Animals> _list;
+            public List<Animals> _list;
+
+            public Container()
+            {
+                this._list = new List<Animals>(1);
+            }
+
+            public List<Animals> List => this._list;
 
             public void AddToContainer(Animals newElem)
             {
                 this._list.Add(newElem);
+            }
+
+            public void RemoveFromContainer(int index)
+            {
+                if (index > this._list.Count)
+                {
+                    Console.WriteLine("invalid index value");
+                }
+
+                if (index < 0)
+                {
+                    Console.WriteLine("invalid index value");
+                }
+                else
+                {
+                    this._list.RemoveAt(index);
+                }
             }
 
             public void ShowList()
@@ -187,6 +213,22 @@ namespace lab4
                 {
                     Console.WriteLine(x + " ");
                 }
+            }
+        }
+
+        public class Controller
+        {
+            private Container zoo;
+            public Container Zoo => this.zoo;
+
+            public int GetAverageWeight()
+            {
+                int sum = 0;
+                foreach (Animals x in this.zoo.List)
+                {
+                    sum += x.Weight;
+                }
+                return sum / this.zoo.List.Count;
             }
         }
 
@@ -267,8 +309,9 @@ namespace lab4
 
             public override string ToString()
             {
-                Console.WriteLine("class Lion");
-                return base.ToString();
+                //Console.WriteLine("class Lion");
+
+                return "class Lion";
             }
         }
 
@@ -337,8 +380,8 @@ namespace lab4
 
             public override string ToString()
             {
-                Console.WriteLine("Class Shark");
-                return base.ToString();
+                //Console.WriteLine("Class Shark");
+                return "class Shark";
             }
         }
 
