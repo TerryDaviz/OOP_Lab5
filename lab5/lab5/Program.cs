@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace lab4
+namespace lab5
 {
     internal class Program
     {
+        private enum animals
+        {
+            eagle,
+            owl,
+            parrot,
+            tiger,
+            lion,
+            crocodile,
+            dyadyaTolya
+        }
+
         public interface ICloneable
         {
             bool DoClone();
@@ -58,10 +69,30 @@ namespace lab4
             Eagle eagle = new Eagle(3, 5, "abobus");
 
             Container container = new Container();
+            container.AddToContainer(owl as Owl);
             container.AddToContainer(lion);
+            container.AddToContainer(crocodile);
             container.AddToContainer(shark);
+            Parrot popuga = new Parrot
+            {
+                Age = 10
+            };
+            owl.Age = 9;
+            lion.Age = 4;
+            crocodile.Age = 5;
+            shark.Age = 0;
+            container.AddToContainer(popuga);
             container.ShowList();
-            container.RemoveFromContainer(4);
+            container.RemoveFromContainer(1);
+            container.AddToContainer(fishbb);
+            Controller controller = new Controller(container);
+            Console.WriteLine("Predator birds amount: ");
+            Console.WriteLine(controller.PredatorBirdsAmount());
+            Console.WriteLine("Sorted by age: ");
+            controller.SortByAge();
+            container.ShowList();
+            int avgWeight = controller.GetAverageWeight();
+            Console.WriteLine("average weight:{0}", avgWeight);
         }
 
         public struct Eagle
@@ -90,9 +121,15 @@ namespace lab4
             }
         }
 
-        public abstract class Animals : ISpeak
+        public abstract class Animals : ISpeak, IComparable<Animals>
         {
+            protected bool _isBird;
+
+            protected bool _isPredator;
+
+            //protected readonly birthday;
             protected int age;
+
             protected string name;
             protected int weigth;
 
@@ -109,6 +146,9 @@ namespace lab4
                 set => this.age = value;
             }
 
+            public virtual bool IsBird => this._isBird;
+            public virtual bool IsPredator => this._isPredator;
+
             public string Name
             {
                 get => this.name;
@@ -120,6 +160,15 @@ namespace lab4
                 get => this.weigth;
                 set => this.weigth = value;
             }
+
+            public int CompareTo(Animals obj)
+            {
+                return Age.CompareTo(obj.Age);
+            }
+
+            //public List<Animals> SortbyAge()
+            //{
+            //}
 
             public virtual void Speak()
             {
@@ -145,14 +194,20 @@ namespace lab4
 
         public class Birds : Animals
         {
-            private bool _hasWings;
+            //protected bool _hasWings = true;
+            //protected bool _isBird = true;
+            //protected bool _isPredator;
 
             public Birds()
             {
-                this._hasWings = true;
+                //this._hasWings = true;
+                //this._isBird = true;
+                //this._isPredator = true;
             }
 
-            public bool HasWings => this._hasWings;
+            //public bool HasWings => this._hasWings;
+            //public override bool IsBird => this._isBird;
+            //public override bool IsPredator => this._isPredator;
 
             public override void Speak()
             {
@@ -196,11 +251,6 @@ namespace lab4
                 {
                     Console.WriteLine("invalid index value");
                 }
-
-                if (index < 0)
-                {
-                    Console.WriteLine("invalid index value");
-                }
                 else
                 {
                     this._list.RemoveAt(index);
@@ -216,19 +266,64 @@ namespace lab4
             }
         }
 
-        public class Controller
+        public partial class Controller
         {
-            private Container zoo;
-            public Container Zoo => this.zoo;
+            private Container _zoo;
+
+            public Controller(Container zoo)
+            {
+                this._zoo = zoo;
+            }
+
+            public Container Zoo => this._zoo;
 
             public int GetAverageWeight()
             {
                 int sum = 0;
-                foreach (Animals x in this.zoo.List)
+                foreach (Animals x in this._zoo.List)
                 {
                     sum += x.Weight;
                 }
-                return sum / this.zoo.List.Count;
+                return sum / this._zoo.List.Count;
+            }
+
+            public int PredatorBirdsAmount()
+            {
+                int amount = 0;
+                foreach (Animals x in this._zoo.List)
+                {
+                    if (x is Birds && x.IsPredator)
+                    {
+                        amount++;
+                    }
+                }
+                return amount;
+            }
+
+            public void SortByAge()
+            {
+                Zoo.List.Sort();
+            }
+        }
+
+        public class Crocodile : Animals
+        {
+            public Crocodile(int age, int weigth, string name)
+            {
+                Age = age;
+                Weight = weigth;
+                Name = name;
+            }
+
+            public override void Speak()
+            {
+                Console.WriteLine("yo bro");
+            }
+
+            public override string ToString()
+            {
+                Console.WriteLine("class crocodile");
+                return "class crocodile";
             }
         }
 
@@ -250,27 +345,6 @@ namespace lab4
             public void IAmPrinting(Animals someObj)
             {
                 someObj.ToString();
-            }
-        }
-
-        private class Crocodile : Animals
-        {
-            public Crocodile(int age, int weigth, string name)
-            {
-                Age = age;
-                Weight = weigth;
-                Name = name;
-            }
-
-            public override void Speak()
-            {
-                Console.WriteLine("yo bro");
-            }
-
-            public override string ToString()
-            {
-                Console.WriteLine("class crocodile");
-                return "class crocodile";
             }
         }
 
@@ -336,9 +410,17 @@ namespace lab4
 
         private class Owl : Birds
         {
+            private readonly bool bird;
+            private readonly bool predator;
+
             public Owl()
             {
+                this.bird = true;
+                this.predator = true;
             }
+
+            public new bool IsBird => this.bird;
+            public override bool IsPredator => this.predator;
 
             public override void Speak()
             {
@@ -354,6 +436,18 @@ namespace lab4
 
         private class Parrot : Birds
         {
+            private readonly bool _bird;
+            private readonly bool _predator;
+
+            public Parrot()
+            {
+                this._bird = true;
+                this._predator = false;
+            }
+
+            public bool isBird => this._bird;
+            public bool isPredator => this._predator;
+
             public override void Speak()
             {
                 Console.WriteLine("ispantsyyyy");
